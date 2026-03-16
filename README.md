@@ -45,6 +45,9 @@ Follow these steps to run the application locally on your machine.
    
    dotnet ef database update
    ```
+  If you get an error about "The Entity Framework tools version '10.0.3' is older than that of the runtime '10.0.5'. " Please enter the following 
+  
+  dotnet ef database update --context MealSync.Infrastructure.Data.MealSyncDbContext
 
 4. **Run the Application:**
    Start the Blazor web server:
