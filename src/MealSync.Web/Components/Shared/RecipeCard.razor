@@ -1,0 +1,23 @@
+@using MealSync.Core.Entities
+
+
+<div class="recipe-card">
+    <h3>@Recipe.Title</h3>
+    <p>Prep Time: @Recipe.PrepTime minutes</p>
+    <p>Cook Time: @Recipe.CookTime minutes</p>
+    <button class="btn" @onclick="() => OnViewDetails.InvokeAsync(Recipe)">View Details</button>
+</div>
+
+
+@code {
+    [Parameter] 
+    public Recipe Recipe { get; set; }
+    [Parameter]
+    public EventCallback<Recipe> OnViewDetails { get; set; }
+
+
+
+
+
+
+}

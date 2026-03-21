@@ -1,0 +1,13 @@
+.recipe-card {
+  border: 2px dashed #e2a743;
+  background-color: #eadbb7;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin: 1rem;
+  box-shadow: 2px 2px 4px 2px #8a3b32;
+}
+
+.list-card {
+  display: flex;
+  flex-direction: column;
+}

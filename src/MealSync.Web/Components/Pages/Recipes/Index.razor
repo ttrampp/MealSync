@@ -1,6 +1,7 @@
 @page "/recipes"
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
+@using MealSync.Web.Components.Shared
 @inject IRecipeService RecipeService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
@@ -24,32 +25,12 @@ else if (recipes.Count == 0)
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Prep Time (min)</th>
-                <th>Cook Time (min)</th>
-                <th>Servings</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var recipe in recipes)
-            {
-                <tr>
-                    <td>@recipe.Title</td>
-                    <td>@recipe.PrepTime</td>
-                    <td>@recipe.CookTime</td>
-                    <td>@recipe.Servings</td>
-                    <td>
-                        <a href="/recipes/edit/@recipe.RecipeId">Edit</a> |
-                        <a href="/recipes/delete/@recipe.RecipeId">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div>
+        @foreach (var recipe in recipes) {
+            <RecipeCard class="@CssView" Recipe="recipe" OnViewDetails="HandleViewDetails" />
+        }
+    </div>
+
 }
 
 @code {
@@ -62,4 +43,10 @@ else
 
         recipes = await RecipeService.GetAllRecipesAsync(userId);
     }
+
+    private void HandleViewDetails(Recipe recipe) {
+
+    }
+
+
 }
