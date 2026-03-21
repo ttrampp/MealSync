@@ -4,6 +4,7 @@
 @inject IGroceryListService GroceryListService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
+
 @attribute [Authorize]
 
 
@@ -118,17 +119,18 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        @* RecipeIngredients = recipeIngredients
+        var FilteredRecipeIngredients = recipeIngredients
             .Where(ri => !string.IsNullOrWhiteSpace(ri.Ingredient?.Name))
-            .ToList(); *@
+            .ToList();
+
+        await GroceryListService.AddGroceryIngredientAsync(FilteredRecipeIngredients, userId);
 
     }
-
-    
 
     private async Task ToggleItem(GroceryListItem item)
     {
         await GroceryListService.ToggleItemCheckedAsync(item.ListItemId);
         item.IsChecked = !item.IsChecked; // update UI state locally without full reload
+
     }
 }
