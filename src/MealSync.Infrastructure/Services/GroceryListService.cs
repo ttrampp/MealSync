@@ -115,5 +115,9 @@ namespace MealSync.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task AddGroceryIngredientAsync()
+        {
+
+        }
     }
 }
