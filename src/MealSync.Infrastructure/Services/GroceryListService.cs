@@ -115,35 +115,26 @@ namespace MealSync.Infrastructure.Services
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task<GroceryList> AddGroceryIngredientAsync(List<GroceryListItem> groceryListItems, string? userId = null)
+        public async Task<List<GroceryListItem>> AddGroceryIngredientAsync(List<GroceryListItem> groceryListItems, GroceryList groceryList, string? userId = null)
         {
 
-            foreach (GroceryListItem groceryListItem in groceryListItems)
+            foreach (GroceryListItem item in groceryListItems)
             {
-                var groceryIngredient = new Ingredient
-                {
-                    Name = groceryListItem.Ingredient.Name,
-                    Category = groceryListItem.Ingredient.Category
-                };
-
-                var groceryList = new GroceryList
-                {
-                    CreatedAt = groceryListItem.GroceryList.CreatedAt,
-                    IsCompleted = groceryListItem.GroceryList.IsCompleted,
-                    UserId = userId
-                };
-
-                var gListItem = new GroceryListItem
-                {
-                    ListId = groceryListItem.ListId,
-                    Quantity = groceryListItem.Quantity,
-                    Unit = groceryListItem.Unit,
-                    IsChecked = groceryListItem.IsChecked
-                }; 
-
+                groceryList.Items.Add(item);
+                _context.GroceryListItems.Add(item);
             }
-            await _context.GroceryListItems.AddAsync()
-            return null; 
+
+            // _context.GroceryLists.Add(groceryList);
+            await _context.SaveChangesAsync();
+
+            return groceryListItems;
+        }
+
+        public async Task<GroceryListItem> UpdateGroceryIngredientAsync(GroceryListItem groceryListItem)
+        {
+            await _context.SaveChangesAsync();
+            return groceryListItem;
+
         }
     }
 }

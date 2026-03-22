@@ -31,3 +31,13 @@ InputCheckbox[type="checkbox"] {
   width: 20px;
   height: 20px;
 }
+
+::deep .edit-item > input {
+  display: inline-block;
+  width: 70px;
+}
+
+.edit-btn {
+  width: 100px;
+  padding: 0.2rem 0.5rem;
+}

@@ -20,6 +20,7 @@
         {
             <ul class="list-group" style="max-width: 500px;">
                 @foreach (var item in groceryList.Items.OrderBy(i => i.IsChecked).ThenBy(i => i.Ingredient?.Name))
+                //retrives all grocery items and orders them
                 {
                     <li
                         class="list-group-item d-flex justify-content-between align-items-center @(item.IsChecked ? "text-decoration-line-through text-muted" : "")">
@@ -31,65 +32,103 @@
                                 @item.Quantity @item.Unit @item.Ingredient?.Name
                             </label>
                         </div>
-                    </li>
+                        <div>
+                            <span><i @onclick="() => ShowEditItem(item)" id="edit-item"
+                                         class="fa-solid fa-pen-to-square"></i></span>
+                                <span><i id="remove-item" class="fa-solid fa-x"></i></span>
+                            </div>
+
+
+                        </li>
+                        <div class="@itemDisplay edit-item">
+                            <InputText class="input-item" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
+                            <InputNumber class="input-item" placeholder="Qty" @bind-Value="item.Quantity" />
+                            <InputText class="input-item" placeholder="Unit" @bind-Value="item.Unit" />
+                            <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleEditItem(item)">Edit
+                                Item</button>
+                            </div>
+                        }
+                    </ul>
                 }
-            </ul>
-        }
 
         else if (groceryList != null)
-        {
-            <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!</div>
-        }
-
-
-        @if (groceryList != null)
-        {
-            <span class="span text-muted mt-3 d-block">Generated On:
-                @groceryList.CreatedAt.ToLocalTime().ToString("g")</span>
-            }
-        </div>
-
-        <div class="mb-3 d-flex justify-content-start flex-column w-25">
-            <button class="btn btn-primary" @onclick="GenerateList">Generate list for this week</button>
-            <div class="mb-3">
-                @foreach (var (ri, index) in recipeIngredients.Select((ri, i) => (ri, i)))
                 {
-                    <div class="d-flex mb-2 align-items-center">
-                        <InputText class="form-control me-2" placeholder="Ingredient Name" @bind-Value="ri.Ingredient!.Name" />
-                        <InputNumber class="form-control me-2" style="width: 100px;" placeholder="Qty"
-                                     @bind-Value="ri.Quantity" />
-                        <InputText class="form-control me-2" style="width: 100px;" placeholder="Unit" @bind-Value="ri.Unit" />
-                        <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveIngredient(index)">X</button>
-                    </div>
+                    <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!</div>
                 }
 
-                <button type="button" class="btn btn-secondary btn-sm" @onclick="AddIngredient">Add New Ingredient</button>
+
+                @if (groceryList != null)
+                {
+                    <span class="span text-muted mt-3 d-block">Generated:
+                        @groceryList.CreatedAt.ToLocalTime().ToString("g")</span>
+                    }
+                </div>
+
+                <div class="mb-3 d-flex justify-content-start flex-column w-25">
+                    <button class="btn btn-primary" @onclick="GenerateList">Generate list for this week</button>
+                    <EditForm Model="@groceryList">
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="AddIngredient">Add New Ingredient</button>
+                        @foreach (var (item, index) in groceryListItems.Select((item, i) => (item, i)))
+                        {
+                            <div class="d-flex mb-2 align-items-center">
+                                <InputText class="form-control me-2" placeholder="Ingredient Name"
+                                           @bind-Value="item.Ingredient!.Name" />
+                                <InputNumber class="form-control me-2" style="width: 100px;" placeholder="Qty"
+                                             @bind-Value="item.Quantity" />
+                                <InputText class="form-control me-2" style="width: 100px;" placeholder="Unit" @bind-Value="item.Unit" />
+                                <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveIngredient(index)">X</button>
+                            </div>
+                        }
+                        <div class="form-group">
+                            <button type="submit" @onclick="AddNewItem" class="btn btn-primary">Add to List</button>
+                        </div>
+                    </EditForm>
+
+                </div>
+
+
             </div>
+<script src="https://kit.fontawesome.com/ab8b884ea6.js" crossorigin="anonymous"></script>
 
-            <div class="form-group mt-4">
-                <button type="submit" class="btn btn-primary">Create</button>
-            </div>
-        </div>
-
-
-    </div>
 @code {
     private GroceryList? groceryList;
     private string? userId;
-    private List<RecipeIngredient> recipeIngredients = new List<RecipeIngredient>();
+    private List<GroceryListItem> groceryListItems = new List<GroceryListItem>();
 
+    private string itemDisplay = "d-none";
+
+
+    public void ShowEditItem(GroceryListItem item)
+    {
+        
+
+        if (itemDisplay == "d-none")
+        {
+            itemDisplay = "d-block";
+        }
+        else
+        {
+            itemDisplay = "d-none";
+        }
+    }
+
+    public async Task HandleEditItem(GroceryListItem item)
+    {
+
+        await GroceryListService.UpdateGroceryIngredientAsync(item);
+    }
 
     private void RemoveIngredient(int index)
     {
-        if (index >= 0 && index < recipeIngredients.Count)
+        if (index >= 0 && index < groceryListItems.Count)
         {
-            recipeIngredients.RemoveAt(index);
+            groceryListItems.RemoveAt(index);
         }
     }
 
     private void AddIngredient()
     {
-        recipeIngredients.Add(new RecipeIngredient { Ingredient = new Ingredient() });
+        groceryListItems.Add(new GroceryListItem { Ingredient = new Ingredient() }); //creates a new ingredient and adds it to
     }
 
     protected override async Task OnInitializedAsync()
@@ -119,13 +158,15 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var FilteredRecipeIngredients = recipeIngredients
-            .Where(ri => !string.IsNullOrWhiteSpace(ri.Ingredient?.Name))
+        var filteredGroceryListItems = groceryListItems
+            .Where(item => !string.IsNullOrWhiteSpace(item.Ingredient?.Name))
             .ToList();
 
-        await GroceryListService.AddGroceryIngredientAsync(FilteredRecipeIngredients, userId);
+        await GroceryListService.AddGroceryIngredientAsync(filteredGroceryListItems, groceryList, userId);
 
     }
+
+
 
     private async Task ToggleItem(GroceryListItem item)
     {
