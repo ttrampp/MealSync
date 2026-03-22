@@ -1,0 +1,48 @@
+@using MealSync.Core.Entities
+
+
+<div class="recipe-card @CssView @(IsFullView ? "show-full" : "")">
+    <h3>@Recipe.Title</h3>
+    <p>Prep Time: @Recipe.PrepTime minutes</p>
+    <p>Cook Time: @Recipe.CookTime minutes</p>
+
+    @if (IsFullView) {
+        <div>
+            <p>Serves: @Recipe.Servings</p>
+            <p>@Recipe.Description</p>
+            <h4>
+                Ingredients:
+            </h4>
+            <ul>
+                @foreach (var ingredient in Recipe.RecipeIngredients) {
+                    <li>@ingredient.Ingredient.Name - @ingredient.Quantity @ingredient.Unit</li>
+                }
+            </ul>
+            <h4>
+                Instructions:
+            </h4>
+            <p>@Recipe.Instructions</p>
+        </div>
+        <a class="btn" href="/recipes/edit/@Recipe.RecipeId">Edit Recipe</a>
+        <a class="btn" href="/recipes/delete/@Recipe.RecipeId">Delete Recipe</a>
+    }
+    <button class="btn" @onclick="() => OnViewDetails.InvokeAsync(Recipe)">@(IsFullView ? "Hide Details" : "View Details")</button>
+</div>
+
+
+@code {
+    [Parameter] 
+    public Recipe Recipe { get; set; }
+    [Parameter]
+    public EventCallback<Recipe> OnViewDetails { get; set; }
+    [Parameter]
+    public string CssView { get; set; }
+    [Parameter]
+    public bool IsFullView { get; set; }
+
+
+
+
+
+
+}
