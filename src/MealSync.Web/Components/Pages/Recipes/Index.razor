@@ -27,7 +27,7 @@ else
 {
     <div>
         @foreach (var recipe in recipes) {
-            <RecipeCard class="@CssView" Recipe="recipe" OnViewDetails="HandleViewDetails" />
+            <RecipeCard CssView="@CssView" IsFullView="@(FullRecipeId == recipe.RecipeId)" Recipe="recipe" OnViewDetails="HandleViewDetails" />
         }
     </div>
 
@@ -35,6 +35,8 @@ else
 
 @code {
     private List<Recipe>? recipes;
+    private string CssView = "list-card";
+    private int? FullRecipeId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,7 +47,11 @@ else
     }
 
     private void HandleViewDetails(Recipe recipe) {
-
+        if(FullRecipeId == recipe.RecipeId) {
+            FullRecipeId = null;
+        } else {
+            FullRecipeId = recipe.RecipeId;
+        }
     }
 
 

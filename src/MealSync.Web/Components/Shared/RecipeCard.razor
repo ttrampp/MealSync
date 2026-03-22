@@ -1,11 +1,15 @@
 @using MealSync.Core.Entities
 
 
-<div class="recipe-card">
+<div class="recipe-card @CssView @(IsFullView ? "show-full" : "")">
     <h3>@Recipe.Title</h3>
     <p>Prep Time: @Recipe.PrepTime minutes</p>
     <p>Cook Time: @Recipe.CookTime minutes</p>
-    <button class="btn" @onclick="() => OnViewDetails.InvokeAsync(Recipe)">View Details</button>
+
+    @if (IsFullView) {
+        <p>test</p>
+    }
+    <button class="btn" @onclick="() => OnViewDetails.InvokeAsync(Recipe)">@(IsFullView ? "Hide Details" : "View Details")</button>
 </div>
 
 
@@ -14,6 +18,10 @@
     public Recipe Recipe { get; set; }
     [Parameter]
     public EventCallback<Recipe> OnViewDetails { get; set; }
+    [Parameter]
+    public string CssView { get; set; }
+    [Parameter]
+    public bool IsFullView { get; set; }
 
 
 
