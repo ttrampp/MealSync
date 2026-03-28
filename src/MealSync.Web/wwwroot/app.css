@@ -1,12 +1,11 @@
 html,
 body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 a,
 .btn-link {
   color: #006bb7;
-  text-decoration: none;
 }
 
 .btn-primary {
@@ -33,7 +32,7 @@ h1:focus {
   outline: none;
 }
 
-.valid.modified:not([type='checkbox']) {
+.valid.modified:not([type="checkbox"]) {
   outline: 1px solid #26b050;
 }
 
@@ -55,7 +54,7 @@ h1:focus {
 }
 
 .blazor-error-boundary::after {
-  content: 'An error has occurred.';
+  content: "An error has occurred.";
 }
 
 .darker-border-checkbox.form-check-input {
@@ -74,6 +73,9 @@ h1:focus {
 }
 
 @media print {
+  .mealsync-nav {
+    visibility: hidden;
+  }
   body * {
     visibility: hidden;
   }
