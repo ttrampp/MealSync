@@ -7,9 +7,9 @@
 @if (editMenuUI.visible)
 {
     <div class="edit-item">
-        <InputText class="input-item" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
-        <InputNumber class="input-item" placeholder="Qty" @bind-Value="item.Quantity" />
-        <InputText class="input-item" placeholder="Unit" @bind-Value="item.Unit" />
+        <InputText class="form-control" placeholder="Ingredient Name" @bind-Value="item.Ingredient!.Name" />
+        <InputNumber class="form-control" placeholder="Qty" @bind-Value="item.Quantity" />
+        <InputText class="form-control" placeholder="Unit" @bind-Value="item.Unit" />
         <button class="edit-btn btn btn-primary" type="submit" @onclick="() => HandleEditItem(item)">Edit
             Item</button>
         </div>

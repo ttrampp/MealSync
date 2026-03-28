@@ -1,9 +1,13 @@
+.container {
+  width: 100%;
+}
+
+/* components  */
 .btn {
   width: 220px;
   padding: 1rem 0.7rem;
   background-color: #c46a3b;
   border: none;
-  border-radius: 1rem;
   margin: 0.2rem 0;
 }
 
@@ -19,6 +23,7 @@
   margin-left: 1rem;
 }
 
+/* grocery list  */
 .list-group {
   padding: 1.5rem 1rem;
   width: 500px;
@@ -34,8 +39,22 @@ InputCheckbox[type="checkbox"] {
 
 ::deep .edit-item > input {
   display: inline-block;
-  width: 70px;
+  width: 90px;
+  border-radius: 8px;
+  border: 1px solid #c8c8c8;
+  margin: 8px 10px 10px 0;
 }
+
+::deep .edit-item > input:active {
+  border: none;
+}
+
+::deep .btn {
+  border-radius: 8px;
+}
+
+/* Options sections  */
+/* Edit Menu  */
 
 .edit-btn {
   width: 100px;
@@ -60,7 +79,6 @@ InputCheckbox[type="checkbox"] {
     justify-content: center;
     flex-direction: column;
   }
-
 }
 
 /* Select forms styling */
@@ -71,8 +89,9 @@ select,
 
 select {
   background: #eadbb7;
-  border: 2px solid #8a3b32;
-  border-radius: 1rem;
+  border: 2px solid #eadbb7;
+  border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
 select::picker-icon {
@@ -81,7 +100,8 @@ select::picker-icon {
 
 ::picker(select) {
   border: none;
-  border-radius: 1.2rem;
+  border-radius: 8px;
+  margin-top: 5px;
 }
 
 option {
