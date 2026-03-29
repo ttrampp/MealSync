@@ -1,0 +1,71 @@
+@using MealSync.Core.Entities
+@using MealSync.Core.Interfaces
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IIngredientService IngredientService
+
+<div class="position-relative">
+    <input class="form-control"
+           style="cursor: text;"
+           placeholder="Search ingredients..."
+           value="@SearchText"
+           @oninput="@(async (ChangeEventArgs e) => await OnSearchChanged(e.Value?.ToString()))" />
+    
+    @if (FilteredIngredients.Any())
+    {
+        <div class="border rounded mt-1 my-dropdown position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+
+            @foreach (var ingredient in FilteredIngredients) {
+                <div class="p-2 dropdown-item" style="cursor: pointer;" @onclick="() => SelectedIngredient(ingredient.Name)">
+                    @ingredient.Name
+                </div>
+            }
+        </div>
+            
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter]
+    public EventCallback<string> OnIngredientSelected { get; set; }
+    
+    private List<Ingredient> FilteredIngredients { get; set; } = new();
+    private string? SearchText { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (SearchText == null && Value != null)
+        {
+            SearchText = Value;
+        }
+    }
+
+
+    private async Task OnSearchChanged(string? ingredientName) {
+        SearchText = ingredientName;
+        Value = ingredientName;
+
+        await ValueChanged.InvokeAsync(Value);
+
+        if (string.IsNullOrWhiteSpace(ingredientName)) {
+            FilteredIngredients.Clear();
+            return;
+        }
+
+        FilteredIngredients = await IngredientService.SearchAsync(ingredientName);
+    }
+
+    private async Task SelectedIngredient(string ingredientName) {
+        SearchText = ingredientName;
+        Value = ingredientName;
+        
+        await ValueChanged.InvokeAsync(Value);
+        await OnIngredientSelected.InvokeAsync(ingredientName);
+
+        FilteredIngredients.Clear();
+    }
+}
