@@ -29,36 +29,34 @@ Follow these steps to run the application locally on your machine.
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd mealsync
+   cd src
+   cd MealSync.web
    ```
 
-2. **Restore dependencies:**
-   Navigate to the root directory containing the solution file and run:
-   ```bash
-   dotnet restore MealSync.slnx
-   ```
-
-3. **Apply Database Migrations:**
+2. **Apply Database Migrations:**
    The project uses SQLite and Entity Framework Core. To create the database and apply the initial schema, run:
    ```bash
-   cd src/MealSync.Infrastructure
-   dotnet ef database update --startup-project ../MealSync.Web
-   cd ../..
+   
+   dotnet ef database update
    ```
+  If you get an error about "The Entity Framework tools version '10.0.3' is older than that of the runtime '10.0.5'. " Please enter the following 
+  
+  dotnet ef database update --context MealSync.Infrastructure.Data.MealSyncDbContext
 
-4. **Run the Application:**
+3. **Run the Application:**
    Start the Blazor web server:
    ```bash
-   dotnet run --project src/MealSync.Web/MealSync.Web.csproj
+   dotnet watch
    ```
 
-5. **View the App:**
+4. **View the App:**
    Open your web browser and navigate to `http://localhost:5027` (or the URL specified in the console output).
 
 ## Team Members
 - Tanya Trampp
 - Brandon Adolf
 - Manuel Zamalloa
+- MF Dube
   
 ### Favorite Quotes
 --Tanya's choice--

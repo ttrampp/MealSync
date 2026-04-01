@@ -1,0 +1,13 @@
+.btn {
+  background-color: #c46a3b;
+  border: none;
+  margin: 0.2rem 0;
+}
+
+.btn:hover {
+  background-color: #8a3b32;
+}
+
+.btn-primary:active {
+  background-color: #8a3b32;
+}

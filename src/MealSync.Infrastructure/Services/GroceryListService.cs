@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MealSync.Core.Entities;
 using MealSync.Core.Interfaces;
 using MealSync.Infrastructure.Data;
@@ -114,6 +110,24 @@ namespace MealSync.Infrastructure.Services
                 item.IsChecked = !item.IsChecked;
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<List<GroceryListItem>> AddGroceryIngredientAsync(List<GroceryListItem> filteredAddedItems, GroceryList groceryList, string? userId = null)
+        {
+
+            foreach (GroceryListItem item in filteredAddedItems)
+            {
+                groceryList.Items.Add(item); // no need to call context since it was called in grocerylist and grocerylistitems
+            }
+
+            await _context.SaveChangesAsync();
+
+            return filteredAddedItems;
+        }
+
+        public async Task<GroceryListItem> UpdateGroceryIngredientAsync(GroceryListItem groceryListItem)
+        {
+            await _context.SaveChangesAsync();
+            return groceryListItem;
         }
     }
 }

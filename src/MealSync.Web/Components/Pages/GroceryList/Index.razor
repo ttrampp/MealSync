@@ -2,45 +2,203 @@
 @using MealSync.Core.Entities
 @using MealSync.Core.Interfaces
 @inject IGroceryListService GroceryListService
+@inject IRecipeService RecipeService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
-@attribute [Authorize]
+@using MealSync.Infrastructure.Services
+@using MealSync.Web.Components.Shared
 
+@attribute [Authorize]
+@inject IJSRuntime JS
+
+
+@* used AI to get this link from bootstrap *@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+      
 <PageTitle>Grocery List</PageTitle>
 
-<h1>Generated Grocery List</h1>
-
-<div class="mb-3 d-flex align-items-center">
-    <button class="btn btn-primary me-3" @onclick="GenerateList">Generate list for this week</button>
-
-    @if (groceryList != null)
-    {
-        <span class="text-muted">Generated: @groceryList.CreatedAt.ToLocalTime().ToString("g")</span>
-    }
-</div>
-
-@if (groceryList != null && groceryList.Items.Any())
-{
-    <ul class="list-group" style="max-width: 500px;">
-        @foreach (var item in groceryList.Items.OrderBy(i => i.IsChecked).ThenBy(i => i.Ingredient?.Name))
+<div class="container d-flex flex-wrap gap-4">
+    <div id="printArea">
+        <h1 class="mb-3">Grocery List</h1>
+        @if (groceryList != null && groceryList.Items.Any())
         {
-            <li class="list-group-item d-flex justify-content-between align-items-center @(item.IsChecked ? "text-decoration-line-through text-muted" : "")">
-                <div>
-                    <input class="form-check-input me-2" type="checkbox" checked="@item.IsChecked" @onchange="() => ToggleItem(item)" />
-                    @item.Quantity @item.Unit @item.Ingredient?.Name
-                </div>
-            </li>
-        }
-    </ul>
-}
-else if (groceryList != null)
-{
-    <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!</div>
-}
+            <ul class="list-group" style="max-width: 500px;">
+                @{
+                    groceryList.Items.OrderBy(i => i.IsChecked).ThenBy(i => i.Ingredient?.Name);
+                    //need to figure out how to impliment this still needs work
+                }
+                @* retrives all grocery items and edit menus needed *@
+                @foreach (var (item, editMenuUI) in ListAndMenu)
+                
+                {
+
+                    <li class="list-group-item d-flex justify-content-between align-items-center ">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="@item.IsChecked" class="form-check-input me-2"
+                                           id="@item.Ingredient?.Name" type="checkbox" checked="@item.IsChecked"
+                                           @onchange="() => ToggleItem(item)" />
+                            <label class="form-check-label @(item.IsChecked ? "text-decoration-line-through text-muted" : "")"
+                                   for="@item.Ingredient?.Name">
+                                @item.Quantity @item.Unit @item.Ingredient?.Name
+                            </label>
+                        </div>
+                        <div>
+                            <span><i @onclick="() => ShowEditItem(editMenuUI)" id="edit-item"
+                                         class="fa-solid fa-pen-to-square"></i></span>
+                                <span><i id="remove-item" class="fa-solid fa-x"></i></span>
+                            </div>
+                        </li>
+
+                        @if (editMenuUI.visible)
+                        {
+                            <EditMenu item="item" OnSubmitCallback="@HandleEditItem" />
+                        }
+                    }
+                </ul>
+            }
+
+        else if (groceryList != null)
+            {
+                <div class="alert alert-info">Your grocery list is empty. Add meals to your calendar first!</div>
+            }
+
+            @if (groceryList != null)
+            {
+                <span class="span text-muted mt-3 d-block">Generated:
+                    @groceryList.CreatedAt.ToLocalTime().ToString("g")</span>
+                }
+            </div>
+
+            <div class="mt-5 mb-3 d-flex justify-content-start flex-column w-25">
+
+                <label for="date-select"><b>Generate grocery list by range</b></label>
+                <select class="w-100" name="date select" id="date-select" @onchange="@OnDateSelected">
+                    <option value="">Select a date range to generate</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Biweekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+    
+                <EditForm Model="@addedGroceryItems" OnSubmit="AddNewItem">
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="AddIngredient">Add New Ingredient</button>
+                    @foreach (var (item, index) in addedGroceryItems.Select((item, i) => (item, i)))
+                    {
+                        <div class="d-flex flex-column mb-2 align-items-start">
+                            <label>Ingredient Name
+                                <InputText class="form-control me-2" style="width: 150px;" placeholder="Ingredient Name"
+                                           @bind-Value="item.Ingredient!.Name" />
+                            </label>
+                            <label>Quantity
+                                <InputNumber id="quantity" class="form-control me-2" style="width: 100px;" placeholder="Qty"
+                                             @bind-Value="item.Quantity" />
+                            </label>
+                            <label>Units
+                                <InputText class="form-control me-2" style="width: 150px;" placeholder="Unit"
+                                           @bind-Value="item.Unit" />
+                            </label>
+                            <button type="button" class="btn btn-danger px-3 py-1 btn-sm w-fit  w-25"
+                                    @onclick="() => RemoveIngredient(index)">Remove</button>
+                        </div>
+                    }
+
+                    @if (addedGroceryItems.Count > 0)
+                    {
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary" style="background-color: #824d47">Add to List</button>
+                        </div>
+                    }
+                </EditForm>
+                <button class="btn btn-primary" @onclick="PrintList">Save as PDF</button>
+
+            </div>
+            <div class="d-flex flex-column justify-center w-25">
+                <h1 class="text-center">Recipes</h1>
+                <p>Your current recipes.</p>
+
+                @foreach (Recipe recipe in recipes)
+                {
+                    <RecipeCard Recipe="recipe" OnViewDetails="HandleRecipeDetails" CssView="pb-2"
+                                IsFullView="@(FullRecipeId == recipe.RecipeId)" />
+                    //copied code from Recipes index.razor
+                }
+            </div>
+
+
+        </div>
+<script src="https://kit.fontawesome.com/ab8b884ea6.js" crossorigin="anonymous"></script>
 
 @code {
     private GroceryList? groceryList;
     private string? userId;
+    private List<GroceryListItem> groceryListItems = new List<GroceryListItem>();
+
+    private List<GroceryListItem> addedGroceryItems = new();
+
+    private List<EditMenuUI> editMenuUIs = new();
+
+    private List<(GroceryListItem groceryList, EditMenuUI editMenuUI)> ListAndMenu = new();
+
+    private List<Recipe> recipes = new();
+
+    private int? FullRecipeId; //copied code from Recipes index.razor
+
+    public async Task HandleEditItem(GroceryListItem item)
+    {
+        await GroceryListService.UpdateGroceryIngredientAsync(item);
+    }
+
+    public void HandleRecipeDetails(Recipe recipe)
+    //copied code from Recipes index.razor
+    {
+        if (FullRecipeId == recipe.RecipeId)
+        {
+            FullRecipeId = null;
+        }
+        else
+        {
+            FullRecipeId = recipe.RecipeId;
+        }
+
+    }
+
+
+    private async Task OnDateSelected(ChangeEventArgs args)
+    {
+        if (args.Value?.ToString() == "")
+        {
+            return;
+        }
+
+        if (args.Value != null)
+        {
+            await GenerateList(args.Value.ToString());
+        }
+    }
+
+    private void ShowEditItem(EditMenuUI editMenuUI)
+    {
+        if (!editMenuUI.visible)
+        {
+            editMenuUI.visible = true;
+        }
+        else
+        {
+            editMenuUI.visible = false;
+        }
+    }
+    private void AddIngredient()
+    {
+        addedGroceryItems.Add(new GroceryListItem { Ingredient = new Ingredient() }); //creates a new ingredient and adds it to
+    }
+
+    private void RemoveIngredient(int index)
+    {
+        if (index >= 0 && index < addedGroceryItems.Count)
+        {
+            addedGroceryItems.RemoveAt(index);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,23 +208,73 @@ else if (groceryList != null)
         if (!string.IsNullOrEmpty(userId))
         {
             groceryList = await GroceryListService.GetLatestGroceryListAsync(userId);
+            recipes = await RecipeService.GetAllRecipesAsync();
+
+            //create a menu editor for each grocery list
+            if (groceryList?.Items != null)
+            {
+                foreach (GroceryListItem item in groceryList.Items)
+                {
+                    ListAndMenu.Add((item, new EditMenuUI()));
+                }
+            }
         }
+
     }
 
-    private async Task GenerateList()
+    private async Task GenerateList(string? selectedDate)
     {
         if (string.IsNullOrEmpty(userId)) return;
 
         // Simple implementation: generate for current week starting from today
         var start = DateTime.Today;
-        var end = start.AddDays(7);
+        var end = new DateTime();
+
+        if (selectedDate == "weekly")
+        {
+            end = start.AddDays(7);
+        }
+        else if (selectedDate == "biweekly")
+        {
+            end = start.AddDays(14);
+        }
+        else if (selectedDate == "monthly")
+        {
+            end = start.AddDays(30);
+        }
 
         groceryList = await GroceryListService.GenerateGroceryListAsync(start, end, userId);
+    }
+
+    private async Task AddNewItem()
+    {
+        var filteredAddedItems = addedGroceryItems
+                .Where(item => !string.IsNullOrWhiteSpace(item.Ingredient?.Name))
+                .ToList();
+
+        if (groceryList != null)
+        {
+            groceryListItems = await GroceryListService.AddGroceryIngredientAsync(filteredAddedItems, groceryList, userId);
+
+            foreach (GroceryListItem item in groceryListItems)
+            {
+                ListAndMenu.Add((item, new EditMenuUI()));
+            }
+            addedGroceryItems.Clear();
+            return;
+        }
     }
 
     private async Task ToggleItem(GroceryListItem item)
     {
         await GroceryListService.ToggleItemCheckedAsync(item.ListItemId);
         item.IsChecked = !item.IsChecked; // update UI state locally without full reload
+
     }
+
+    public async Task PrintList()
+    {
+        await JS.InvokeVoidAsync("window.print");
+    }
+
 }

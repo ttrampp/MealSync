@@ -1,19 +1,31 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
+    <header class="top-nav">
         <NavMenu />
-    </div>
+    </header>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
+    <main class="main-content">
         <article class="content px-4">
             @Body
         </article>
     </main>
+
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="footer-title">MealSync</span>
+            </div>
+
+            <div class="footer-center">
+                <span class="footer-quote">"Plan well. Eat well. Live well."</span>
+            </div>
+
+            <div class="footer-right">
+                <span class="footer-copy">©️ @DateTime.Now.Year MealSync</span>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
