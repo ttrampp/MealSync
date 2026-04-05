@@ -29,9 +29,6 @@
     private bool showForm = false;
 
     [Parameter]
-    public GroceryList groceryList { get; set; } = new();
-
-    [Parameter]
     public GroceryListItem? item { get; set; }
 
     [Parameter]
@@ -47,10 +44,13 @@
         showForm = !showForm;
     }
 
+    [Parameter]
+    public EventCallback<int> RemoveItem { get; set; }
+
     public async Task RemoveListItem(GroceryListItem item)
     {
         await GroceryListService.RemoveGroceryIngredientAsync(item);
-
+        await RemoveItem.InvokeAsync(item.ListItemId);
     }
 
 }
