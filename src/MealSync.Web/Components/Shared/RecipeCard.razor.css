@@ -40,7 +40,7 @@
   align-items: center;
   justify-content: center;
   width: 90%;
-  height: 100%;
+  height: 100% !important;
   order: -1;
 }
 
@@ -59,4 +59,45 @@
 
 .btn:hover {
   background-color: #8a3b32;
+}
+
+.recipe-card-gl {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  border: 2px solid #c46a3b;
+  background-color: #eadbb7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0 0 1rem 0;
+  box-shadow: 2px 2px 4px 2px #8a3b32;
+  width: 400px;
+  height: 200px;
+  transition: height 500ms ease-out;
+}
+
+.recipe-card-gl > .btn {
+  width: auto;
+  padding: 0.5rem 1rem;
+  background-color: #c46a3b;
+  border: none;
+  border-radius: 1rem;
+  margin: 0.2rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 2px 2px 4px 2px #8a3b32;
+  transition: background-color 250ms ease-in-out;
+}
+
+.recipe-card-gl > .btn:hover {
+  background-color: #8a3b32;
+}
+
+.recipe-card-gl > .btn-primary:active {
+  background-color: #8a3b32;
+}
+
+.recipe-card-gl > .btn:first-child {
+  margin-bottom: 1.2rem;
 }
